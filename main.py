@@ -256,6 +256,8 @@ def temp_update(area_map, decider='b'):
                 elif cell.temperature_mod > 10:
                     cell.temperature_mod = 10
 
+    classify_map(area_map)
+
 
 # BIOME CLASSIFICATION
 
@@ -358,7 +360,6 @@ def update_moisture(area_map):
                 cell.moisture = 0
 
     temp_update(area_map, 'm')
-    classify_map(area_map)
 
 temp_update(area_map, 'b')
 
@@ -406,7 +407,6 @@ def update_water_level(area_map, water_level):
         counter1 += 1
 
     update_moisture(area_map)
-
 
 update_water_level(area_map, water_level)
 
