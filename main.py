@@ -7,6 +7,7 @@ map = Map()
 plant_ids = 0
 plants = {}
 year = 0
+spread_requests = []
 
 time_tracking = True
 
@@ -77,11 +78,18 @@ elif simulate_mode:
 
             keys = list(plants.keys())
             cycle = Plants.cycle
+
             for id in keys:
-                cycle(plants[id])
+                plants[id].cycle(spread_requests)
+
+            for plant in spread_requests:
+                plant.resolve_spread()
+            spread_requests = []
+
             for row in map.area_map:
                 for cell in row:
                     cell.cramp_death()
+
             if year % 100 == 0 and year % 500 != 0:
                 map.plot_call()
             if year % 500 == 0:
@@ -110,7 +118,7 @@ elif simulate_mode:
             print()
 
             year+=1
-            if year == 1001:
+            if year == 501:
                 break
         except KeyboardInterrupt:
             map.plot_call()

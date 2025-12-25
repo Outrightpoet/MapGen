@@ -6,7 +6,7 @@ class Plants:
         self.traits = 'placeholder'
         self.temperature_resistance = [4,6]
         self.nutrition_need = 2
-        self.space_requirement = 5
+        self.space_requirement = 10
         self.spread_size = 10
         self.spread_distance=1
         self.growth_rate = 1
@@ -19,6 +19,9 @@ class Plants:
         self.plant_list = plant_list
         self.tile = tile
         self.area_map = area_map
+        self.map_height = len(self.area_map)
+        self.map_width = len(self.area_map[0])
+
 
         #maybe some more unique skills
         self.toxicity = 0
@@ -28,7 +31,7 @@ class Plants:
         del self.tile.plants[self.id]
         del self.plant_list[self.id]
 
-    def cycle(self):
+    def cycle(self, spread_requests):
 
         if self.status == "elder" and get_random_store_0_10() == 0:
             self.die()
@@ -55,22 +58,19 @@ class Plants:
         elif self.status == "mature" and self.height >= self.target_height:
             self.status = "elder"
 
-        if self.status != "seed":
-            self.spread()
+        if self.status != "seed" and get_random_store_0_10() == 0:
+            spread_requests.append(self)
 
-    def spread(self):
-        if get_random_store_0_10() == 0:
-            row = self.tile.row
-            col = self.tile.col
-            if self.spread_distance == 1:
-                for _ in range(0,self.spread_size):
-                    row = row+get_random_store_neg_1_1()
-                    col = col+get_random_store_neg_1_1()
-                    try:
-                        if self.area_map[row][col].tile_space_avalible > -20:
-                            self.offspring(row, col)
-                    except IndexError:
-                        pass
+    def resolve_spread(self):
+        row = self.tile.row
+        col = self.tile.col
+        if self.spread_distance == 1:
+            for _ in range(0, self.spread_size):
+                row = row + get_random_store_neg_1_1()
+                col = col + get_random_store_neg_1_1()
+                if row >= 0 and row < self.map_height and col >= 0 and col < self.map_width:
+                    if self.area_map[row][col].tile_space_avalible > -20:
+                        self.offspring(row, col)
 
 
     def offspring(self, row, col):
