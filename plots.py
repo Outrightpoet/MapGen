@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+from matplotlib.colors import ListedColormap, BoundaryNorm
 import numpy as np
 
 def plt_data(data1, data2, data3, data4, data5, data6):
@@ -38,10 +38,14 @@ def plt_data(data1, data2, data3, data4, data5, data6):
     ]
 
     cmap = ListedColormap(BIOME_COLORS)
-    axs[2, 1].imshow(data5, cmap=cmap, interpolation='nearest')
+    norm = BoundaryNorm(np.arange(len(BIOME_COLORS) + 1), cmap.N)
 
-    axs[2, 1].imshow(data6, cmap=cmap, interpolation='nearest')
-    axs[2, 1].title.set_text('Biomes')
+    axs[2, 1].imshow(
+        data6,
+        cmap=cmap,
+        norm=norm,
+        interpolation='nearest'
+    )
 
     plt.tight_layout()
     plt.show()

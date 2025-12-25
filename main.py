@@ -1,6 +1,7 @@
 #data1 = np.array([[cell.terrain_value for cell in row] for row in area_map])
 from matplotlib import pyplot as plt
 from numpy.ma.extras import average
+from time import sleep as s
 
 from rand_storage import get_random_store_1_3, get_random_store_neg_1_1, get_random_store_0_10
 import random
@@ -365,6 +366,15 @@ temp_update(area_map, 'b')
 
 #WATER AREA
 
+def check_neighbor_for_water(area_map, row, col):
+    if row == 0 or col == 0 or row == height - 1 or col == width - 1:
+        return True
+
+    for col1 in range(col - 1, col + 2):
+        for row1 in range(row - 1, row + 2):
+            if area_map[row1][col1].water == True:
+                return True
+
 def update_water_level(area_map, water_level):
 
     for row in area_map:
@@ -374,41 +384,126 @@ def update_water_level(area_map, water_level):
 
     counter1 = 0
 
-    def check_neighbor_for_water(area_map, row, col):
-        if row == 0 or col == 0 or row == height - 1 or col == width - 1:
-            return True
-
-        for col1 in range(col-1,col+2):
-            for row1 in range(row-1,row+2):
-                if area_map[row1][col1].water == True:
-                    return True
-
     for i in range(0,int(height/2)):
 
-        for i in range(0,3):
-            for cell in (area_map[counter1]):
-                if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
-                    cell.water = True
+        for cell in (area_map[counter1]):
+            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
+                cell.water = True
 
 
-            for i2 in range(counter1+1, height-(counter1+1)):
-                if area_map[i2][counter1].topographic_level <= water_level and check_neighbor_for_water(area_map, i2, (counter1+1)):
-                    cell.water = True
+        for i2 in range(counter1+1, height-(counter1+1)):
+            if area_map[i2][counter1].topographic_level <= water_level and check_neighbor_for_water(area_map, i2, (counter1+1)):
+                cell.water = True
 
-                elif area_map[i2][width-(counter1+1)].topographic_level <= water_level and check_neighbor_for_water(area_map, i2, (width-(counter1+1))):
-                    cell.water = True
+            elif area_map[i2][width-(counter1+1)].topographic_level <= water_level and check_neighbor_for_water(area_map, i2, (width-(counter1+1))):
+                cell.water = True
 
 
-            for col, cell in enumerate(area_map[height-(counter1+1)]):
-                if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
-                    cell.water = True
+        for col, cell in enumerate(area_map[height-(counter1+1)]):
+            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
+                cell.water = True
 
+        counter1 += 1
+
+    counter1 = 0
+
+    for i in range(int(height/2), 0, -1):
+
+        for cell in (area_map[counter1]):
+            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
+                cell.water = True
+
+        for col, cell in enumerate(area_map[height-(counter1+1)]):
+            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
+                cell.water = True
 
         counter1 += 1
 
     update_moisture(area_map)
 
 update_water_level(area_map, water_level)
+
+#ENVIORMENTAL EVENTS
+
+def simulate_random_events(area_map):
+    global water_level, temperature_modifier
+    for _ in range(0,20):
+        print()
+        plot_call(area_map)
+        s(1)
+        ran = get_random_store_0_10()
+        if ran == 0:
+            print("RAISED WATER LEVEL")
+            raise_water(area_map)
+        elif ran == 1:
+            print("LOWER WATER LEVEL")
+            lower_water(area_map)
+        elif ran == 2:
+            print("RAISED TEMPERATURE LEVEL")
+            raise_temp(area_map)
+        elif ran == 3:
+            print("LOWER TEMPERATURE LEVEL")
+            lower_temp(area_map)
+        elif ran == 4:
+            print("RANDOMIZED TEMP MAP")
+            randomize_heat_map(area_map)
+        elif ran == 5:
+            print("SOIL DEPOSIT")
+            soil_deposit(area_map)
+        elif ran == 6:
+            print("SOIL EROSION")
+            soil_erosion(area_map)
+        else:
+            print("PASSED")
+
+def raise_water(area_map):
+    global water_level
+    water_level += 1
+    print(f"new water level: {water_level}\n")
+    update_water_level(area_map, water_level)
+
+def lower_water(area_map):
+    global water_level
+    water_level -= 1
+    print(f"new water level: {water_level}\n")
+    update_water_level(area_map, water_level)
+
+def raise_temp(area_map):
+    global temperature_modifier
+    temperature_modifier += 1
+    print(f"new temp level: {temperature_modifier}\n")
+    temp_update(area_map, 'm')
+
+def lower_temp(area_map):
+    global temperature_modifier
+    temperature_modifier -= 1
+    print(f"new temp level: {temperature_modifier}\n")
+    temp_update(area_map, 'm')
+
+def randomize_heat_map(area_map):
+    temp_update(area_map, 'r')
+
+def soil_deposit(area_map):
+    for row in area_map:
+        for cell in row:
+            if cell.water == True:
+                if get_random_store_1_3() == 1:
+                    cell.topographic_level += 1
+                    if cell.topographic_level > 10:
+                        cell.topographic_level = 10
+
+    update_water_level(area_map, water_level)
+
+def soil_erosion(area_map):
+    for row in area_map:
+        for cell in row:
+            if check_neighbor_for_water(area_map, cell.row, cell.col):
+                if get_random_store_0_10() == 1:
+                    cell.topographic_level -= 1
+                    if cell.topographic_level < 0:
+                        cell.topographic_level = 0
+
+    update_water_level(area_map, water_level)
 
 #PLOTING AREA
 
@@ -428,29 +523,27 @@ def plot_call(area_map):
 
 while True:
     plot_call(area_map)
-    print(f"Pass: p\nRaise water level: rw\nLower water level: lw\nRaise temp: rt\nLower temp: lt\nRandomize temp map: rnt\nQuit: q\n")
+    print(f"Pass: p\nRaise water level: rw\nLower water level: lw\nRaise temp: rt\nLower temp: lt\nRandomize temp map: rnt\nSoil Deposit: sd\nSoil Erosion: se\nSimulate Random events: re\nQuit: q\n")
     response = input('enviormental change: ').lower()
     print()
     if response == 'p':
         pass
     elif response == 'rw':
-        water_level += 1
-        print(f"new water level: {water_level}\n")
-        update_water_level(area_map, water_level)
+        raise_water(area_map)
     elif response == 'lw':
-        water_level -= 1
-        print(f"new water level: {water_level}\n")
-        update_water_level(area_map, water_level)
+        lower_water(area_map)
     elif response == 'rt':
-        temperature_modifier += 1
-        print(f"new temp level: {temperature_modifier}\n")
-        temp_update(area_map, 'm')
+        raise_temp(area_map)
     elif response == 'lt':
-        temperature_modifier -= 1
-        print(f"new temp level: {temperature_modifier}\n")
-        temp_update(area_map, 'm')
+        lower_temp(area_map)
     elif response == 'rnt':
-        temp_update(area_map, 'r')
+        randomize_heat_map(area_map)
+    elif response == 'sd':
+        soil_deposit(area_map)
+    elif response == 'se':
+        soil_erosion(area_map)
+    elif response == 're':
+        simulate_random_events(area_map)
     elif response == 'q':
         break
 
