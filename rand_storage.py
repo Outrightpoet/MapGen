@@ -28,7 +28,7 @@ def get_random_store_0_10():
     global count
     count += 1
     try:
-        return random_store_neg_1_1[count]
+        return random_store_0_10[count]
     except IndexError:
         count = 0
-        return random_store_neg_1_1[count]
+        return random_store_0_10[count]
