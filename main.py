@@ -287,7 +287,7 @@ def classify_cell(cell):
 
     # --- WATER ---
     if cell.water:
-        if topo <= 3:
+        if topo != water_level:
             return "ocean"
         else:
             return "lake"
@@ -333,15 +333,27 @@ def classify_map(area_map):
 
 #MOISTURE AREA
 
+
+def check_neighbor_for_land(area_map, row, col):
+
+    for col1 in range(col - 1, col + 2):
+        for row1 in range(row - 1, row + 2):
+            try:
+                if area_map[row1][col1].water == False:
+                    return True
+            except IndexError:
+                pass
+
 def spread_moisture(area_map, row, col):
-    for dis in range(1,20):
-        for row1 in range(row-dis,row+dis+1):
-            for col1 in range(col-dis,col+dis+1):
-                try:
-                    if area_map[row1][col1].moisture < int((20-dis)/2):
-                        area_map[row1][col1].moisture = int((20-dis)/2)
-                except IndexError:
-                    pass
+    if check_neighbor_for_land(area_map, row, col):
+        for dis in range(1,20):
+            for row1 in range(row-dis,row+dis+1):
+                for col1 in range(col-dis,col+dis+1):
+                    try:
+                        if area_map[row1][col1].moisture < int((20-dis)/2):
+                            area_map[row1][col1].moisture = int((20-dis)/2)
+                    except IndexError:
+                        pass
 
 def update_moisture(area_map):
 
