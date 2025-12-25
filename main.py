@@ -29,6 +29,7 @@ def make_new_plants():
 
         plants[plant_id] = plant
         map.area_map[row][col].plants[plant_id] = plant
+        map.area_map[row][col].tile_space_avalible -= plant.space_requirement
 
 #POST MAP MAKEING STUFFS
 
@@ -78,14 +79,14 @@ elif simulate_mode:
             cycle = Plants.cycle
             for id in keys:
                 cycle(plants[id])
-
             for row in map.area_map:
                 for cell in row:
                     cell.cramp_death()
-            if year % 5 == 0:
+            if year % 100 == 0 and year % 500 != 0:
                 map.plot_call()
-            if year % 1000 == 0:
+            if year % 500 == 0:
                 map.simulate_random_events()
+                map.plot_call()
 
             big_num = 0
             lowest_num = 100
@@ -109,6 +110,8 @@ elif simulate_mode:
             print()
 
             year+=1
+            if year == 1001:
+                break
         except KeyboardInterrupt:
             map.plot_call()
             break

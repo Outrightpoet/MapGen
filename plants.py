@@ -2,11 +2,11 @@ from rand_storage import get_random_store_neg_1_1, get_random_store_0_10
 from plant_id_getter import get_plant_id
 
 class Plants:
-    def __init__(self, id, plant_list, tile, area_map):
+    def __init__(self, id, plant_list, tile, area_map, parent=None):
         self.traits = 'placeholder'
         self.temperature_resistance = [4,6]
         self.nutrition_need = 2
-        self.space_requirement = 3
+        self.space_requirement = 5
         self.spread_size = 10
         self.spread_distance=1
         self.growth_rate = 1
@@ -51,7 +51,7 @@ class Plants:
         if self.status == "seed" and self.height > int(self.target_height / 2):
             self.status = "mature"
             self.tile.tile_space_avalible -= self.space_requirement
-            self.space_requirement *= 2
+            self.space_requirement += self.space_requirement
         elif self.status == "mature" and self.height >= self.target_height:
             self.status = "elder"
 
@@ -66,19 +66,18 @@ class Plants:
                 for _ in range(0,self.spread_size):
                     row = row+get_random_store_neg_1_1()
                     col = col+get_random_store_neg_1_1()
-                    self.offspring(row, col)
+                    try:
+                        if self.area_map[row][col].tile_space_avalible > -20:
+                            self.offspring(row, col)
+                    except IndexError:
+                        pass
 
 
     def offspring(self, row, col):
-        try:
-            self.area_map[row][col]
-            if self.tile.tile_space_avalible > -50:
-                plant_id = get_plant_id()
-                offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map)
-                self.plant_list[plant_id] = offspring
-                self.area_map[row][col].plants[plant_id] = offspring
-
-        except IndexError:
-            pass
+        plant_id = get_plant_id()
+        offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map, self)
+        self.plant_list[plant_id] = offspring
+        self.area_map[row][col].plants[plant_id] = offspring
+        self.area_map[row][col].tile_space_avalible -= offspring.space_requirement
 
 

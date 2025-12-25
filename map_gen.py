@@ -1,5 +1,5 @@
 from time import sleep as s
-from rand_storage import get_random_store_1_3, get_random_store_neg_1_1, get_random_store_0_10
+from rand_storage import get_random_store_1_3, get_random_store_neg_1_1, get_random_store_0_10, get_random_store_0_6
 import random
 from tiles import Tile
 import numpy as np
@@ -178,6 +178,8 @@ class Map:
                         self.area_map[counter1][counter2].soil_quality = 0
                     elif self.area_map[counter1][counter2].soil_quality > 10:
                         self.area_map[counter1][counter2].soil_quality = 10
+
+                    self.area_map[counter1][counter2].tile_space_avalible = (self.area_map[counter1][counter2].soil_quality * 10)
 
                 counter1 -= 1
                 counter2 += 1
@@ -443,7 +445,7 @@ class Map:
             print()
             self.plot_call()
             s(1)
-            ran = get_random_store_0_10()
+            ran = get_random_store_0_6()
             if ran == 0:
                 print("RAISED WATER LEVEL")
                 self.raise_water()
