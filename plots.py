@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 import numpy as np
 
-def plt_data(data1, data2, data3, data4, data5, data6):
-    fig, axs = plt.subplots(3,2, figsize = (20,30))
+def plt_data(data1, data2, data3, data4, data5, data6, data7):
+    fig, axs = plt.subplots(4,2, figsize = (20,40))
 
     axs[0,0].imshow(data1, cmap='Reds', interpolation='nearest')
     axs[0,0].title.set_text('Topographic Level')
@@ -46,6 +46,9 @@ def plt_data(data1, data2, data3, data4, data5, data6):
         norm=norm,
         interpolation='nearest'
     )
+
+    axs[3, 0].imshow(data7, cmap='viridis', interpolation='nearest')
+    axs[3, 0].title.set_text('Plant Life')
 
     plt.tight_layout()
     plt.show()

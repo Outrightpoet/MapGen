@@ -1,565 +1,127 @@
-#data1 = np.array([[cell.terrain_value for cell in row] for row in area_map])
-from matplotlib import pyplot as plt
-from numpy.ma.extras import average
-from time import sleep as s
-
-from rand_storage import get_random_store_1_3, get_random_store_neg_1_1, get_random_store_0_10
+from map_gen import Map
+from plants import Plants
+from plant_id_getter import get_plant_id
 import random
-from tiles import Tile
-import numpy as np
-from plots import plt_data
 
+map = Map()
+plant_ids = 0
+plants = {}
+year = 0
 
-height = 100
-width = 100
-water_level = 3
-temperature_modifier = 0
-area_map = []
+time_tracking = True
 
-#LIST CREATION
+if time_tracking:
+    import cProfile, pstats
+    import io
 
-for h in range(0,height):
-    area_map.append([])
-    for w in range(0,width):
-        area_map[h].append(Tile(h,w))
+    pr = cProfile.Profile()
+    pr.enable()
 
-#TOPOGRAPICAL GEN
 
-set=1
-counter1=0
-counter2=0
+def make_new_plants():
+    for _ in range(10000):
+        plant_id = get_plant_id()
 
-area_map[0][0].topographic_level = random.randint(0,10)
+        row = random.randint(0,map.height-1)
+        col = random.randint(0,map.width-1)
 
-while set < height*2:
-    counter1 = set
-    run = counter1
-    if run > height:
-        run = height
-    for i in range(0,run+1):
-        if counter2 == 0:
-            try:
-                neighbor1 = area_map[counter1-1][0].topographic_level
-            except IndexError:
-                neighbor1 = -1
-            neighbor2 = -1
-        elif counter1 == 0:
-            try:
-                neighbor2 = area_map[0][counter2-1].topographic_level
-            except IndexError:
-                neighbor2 = -1
-            neighbor1 = -1
-        else:
-            try:
-                neighbor1 = area_map[counter1-1][counter2].topographic_level
-            except IndexError:
-                neighbor1 = -1
-            try:
-                neighbor2 = area_map[counter1][counter2-1].topographic_level
-            except IndexError:
-                neighbor2 = -1
+        plant = Plants(plant_id, plants, map.area_map[row][col], map.area_map)
 
-        if counter1 < height and counter2 < width:
-            if neighbor1 != -1 and neighbor2 != -1:
-                area_map[counter1][counter2].topographic_level = round((neighbor1 + neighbor2)/2) + get_random_store_neg_1_1()
-            else:
-                rand = get_random_store_1_3()
-                if neighbor1 != -1:
-                    neighbor_val = neighbor1
-                else:
-                    neighbor_val = neighbor2
+        plants[plant_id] = plant
+        map.area_map[row][col].plants[plant_id] = plant
 
-                if rand == 1:
-                    area_map[counter1][counter2].topographic_level = neighbor_val -1
-                elif rand == 2:
-                    area_map[counter1][counter2].topographic_level = neighbor_val
-                else:
-                    area_map[counter1][counter2].topographic_level = neighbor_val + 1
+#POST MAP MAKEING STUFFS
 
-            if get_random_store_0_10() == 0 and get_random_store_0_10() == 0:
-                if area_map[counter1][counter2].topographic_level > 5:
-                    area_map[counter1][counter2].topographic_level -= 1
-                elif area_map[counter1][counter2].topographic_level < 5:
-                    area_map[counter1][counter2].topographic_level += 1
+#
+#CHANGE THIS TO MAP MODE TRUE AND SIMULATE OFF FOR NO PLANTS
+#well a few but not important
 
-            if area_map[counter1][counter2].topographic_level < 0:
-                area_map[counter1][counter2].topographic_level = 0
-            elif area_map[counter1][counter2].topographic_level > 10:
-                area_map[counter1][counter2].topographic_level = 10
+map_mode = False
+simulate_mode = True
 
-        counter1 -= 1
-        counter2 += 1
-    set += 1
-    counter1 = 0
-    counter2 = 0
+#plant_init(area_map)
 
-#SOIL QUALITY GEN
-
-set=1
-counter1=0
-counter2=0
-
-area_map[0][0].soil_quality = random.randint(0,10)
-
-while set < height*2:
-    counter1 = set
-    run = counter1
-    if run > height:
-        run = height
-    for i in range(0,run+1):
-        if counter2 == 0:
-            try:
-                neighbor1 = area_map[counter1-1][0].soil_quality
-            except IndexError:
-                neighbor1 = -1
-            neighbor2 = -1
-        elif counter1 == 0:
-            try:
-                neighbor2 = area_map[0][counter2-1].soil_quality
-            except IndexError:
-                neighbor2 = -1
-            neighbor1 = -1
-        else:
-            try:
-                neighbor1 = area_map[counter1-1][counter2].soil_quality
-            except IndexError:
-                neighbor1 = -1
-            try:
-                neighbor2 = area_map[counter1][counter2-1].soil_quality
-            except IndexError:
-                neighbor2 = -1
-
-        if counter1 < height and counter2 < width:
-            if neighbor1 != -1 and neighbor2 != -1:
-                area_map[counter1][counter2].soil_quality = round((neighbor1 + neighbor2)/2) + get_random_store_neg_1_1()
-            else:
-                rand = get_random_store_1_3()
-                if neighbor1 != -1:
-                    neighbor_val = neighbor1
-                else:
-                    neighbor_val = neighbor2
-
-                if rand == 1:
-                    area_map[counter1][counter2].soil_quality = neighbor_val -1
-                elif rand == 2:
-                    area_map[counter1][counter2].soil_quality = neighbor_val
-                else:
-                    area_map[counter1][counter2].soil_quality = neighbor_val + 1
-
-            if get_random_store_0_10() == 0 and get_random_store_0_10() == 0:
-                if area_map[counter1][counter2].soil_quality > 5:
-                    area_map[counter1][counter2].soil_quality -= 1
-                elif area_map[counter1][counter2].soil_quality < 5:
-                    area_map[counter1][counter2].soil_quality += 1
-
-            if area_map[counter1][counter2].soil_quality < 0:
-                area_map[counter1][counter2].soil_quality = 0
-            elif area_map[counter1][counter2].soil_quality > 10:
-                area_map[counter1][counter2].soil_quality = 10
-
-        counter1 -= 1
-        counter2 += 1
-    set += 1
-    counter1 = 0
-    counter2 = 0
-
-
-# TEMP GEN
-
-def temp_update(area_map, decider='b'):
-    set = 1
-    counter1 = 0
-    counter2 = 0
-
-    area_map[0][0].temperature = random.randint(0, 10)
-
-    if decider == 'r' or decider == 'b':
-        while set < height * 2:
-            counter1 = set
-            run = counter1
-            if run > height:
-                run = height
-            for i in range(0, run + 1):
-                if counter2 == 0:
-                    try:
-                        neighbor1 = area_map[counter1 - 1][0].temperature
-                    except IndexError:
-                        neighbor1 = -1
-                    neighbor2 = -1
-                elif counter1 == 0:
-                    try:
-                        neighbor2 = area_map[0][counter2 - 1].temperature
-                    except IndexError:
-                        neighbor2 = -1
-                    neighbor1 = -1
-                else:
-                    try:
-                        neighbor1 = area_map[counter1 - 1][counter2].temperature
-                    except IndexError:
-                        neighbor1 = -1
-                    try:
-                        neighbor2 = area_map[counter1][counter2 - 1].temperature
-                    except IndexError:
-                        neighbor2 = -1
-
-                if counter1 < height and counter2 < width:
-                    if neighbor1 != -1 and neighbor2 != -1:
-                        area_map[counter1][counter2].temperature = round(
-                            (neighbor1 + neighbor2) / 2) + get_random_store_neg_1_1()
-                    else:
-                        rand = get_random_store_1_3()
-                        if neighbor1 != -1:
-                            neighbor_val = neighbor1
-                        else:
-                            neighbor_val = neighbor2
-
-                        if rand == 1:
-                            area_map[counter1][counter2].temperature = neighbor_val - 1
-                        elif rand == 2:
-                            area_map[counter1][counter2].temperature = neighbor_val
-                        else:
-                            area_map[counter1][counter2].temperature = neighbor_val + 1
-
-                    if get_random_store_0_10() == 0 and get_random_store_0_10() == 0:
-                        if area_map[counter1][counter2].temperature > 5:
-                            area_map[counter1][counter2].temperature -= 1
-                        elif area_map[counter1][counter2].temperature < 5:
-                            area_map[counter1][counter2].temperature += 1
-
-                    if area_map[counter1][counter2].temperature < 0:
-                        area_map[counter1][counter2].temperature = 0
-                    elif area_map[counter1][counter2].temperature > 10:
-                        area_map[counter1][counter2].temperature = 10
-
-                counter1 -= 1
-                counter2 += 1
-            set += 1
-            counter1 = 0
-            counter2 = 0
-
-    if decider == 'm' or decider == 'b' or decider == 'r':
-        for row in area_map:
-            for cell in row:
-                cell.temperature_mod = cell.temperature
-                if cell.topographic_level > 5:
-                    cell.temperature_mod -= int(cell.topographic_level / 2)
-                elif cell.topographic_level < 5:
-                    cell.temperature_mod += int(cell.topographic_level / 2)
-                if cell.moisture > 5:
-                    cell.temperature_mod -= int(cell.moisture / 4)
-                else:
-                    cell.temperature_mod += int((10 - cell.moisture) / 4)
-
-                cell.temperature_mod += temperature_modifier
-
-                if cell.temperature_mod < 0:
-                    cell.temperature_mod = 0
-                elif cell.temperature_mod > 10:
-                    cell.temperature_mod = 10
-
-    classify_map(area_map)
-
-
-# BIOME CLASSIFICATION
-
-BIOME_IDS = {
-    "ocean": 0,
-    "lake": 1,
-    "swamp": 2,
-    "desert": 3,
-    "grassland": 4,
-    "temperate_forest": 5,
-    "rainforest": 6,
-    "taiga": 7,
-    "tundra": 8,
-    "mountain": 9,
-    "alpine": 10,
-    "rocky_peak": 11,
-    "badlands": 12,
-    "farmland": 13,
-}
-
-def classify_cell(cell):
-    topo = cell.topographic_level  # 0–10
-    moist = cell.moisture  # 0–10
-    soil = cell.soil_quality  # 0–10
-    temp = cell.temperature_mod  # 0–10
-
-    # --- WATER ---
-    if cell.water:
-        if topo != water_level:
-            return "ocean"
-        else:
-            return "lake"
-
-    # --- COLD BIOMES ---
-    if temp <= 3:
-        if topo >= 8:
-            return "rocky_peak" if soil <= 3 else "alpine"
-        if moist <= 3:
-            return "tundra"
-        return "taiga"
-
-    # --- HOT BIOMES ---
-    if temp >= 7:
-        if moist <= 3:
-            return "desert"
-        if moist >= 7:
-            return "rainforest"
-        return "grassland"
-
-    # --- TEMPERATE BIOMES ---
-    if topo >= 8:
-        return "mountain"
-
-    if moist >= 7:
-        return "temperate_forest"
-
-    if soil >= 7 and 4 <= moist <= 6:
-        return "farmland"
-
-    if moist <= 3:
-        return "badlands"
-
-    return "grassland"
-
-def classify_map(area_map):
-    for row in area_map:
-        for cell in row:
-            biome = classify_cell(cell)
-            cell.classification = biome
-            cell.classification_num = BIOME_IDS[biome]
-
-
-#MOISTURE AREA
-
-
-def check_neighbor_for_land(area_map, row, col):
-
-    for col1 in range(col - 1, col + 2):
-        for row1 in range(row - 1, row + 2):
-            try:
-                if area_map[row1][col1].water == False:
-                    return True
-            except IndexError:
-                pass
-
-def spread_moisture(area_map, row, col):
-    if check_neighbor_for_land(area_map, row, col):
-        for dis in range(1,20):
-            for row1 in range(row-dis,row+dis+1):
-                for col1 in range(col-dis,col+dis+1):
-                    try:
-                        if area_map[row1][col1].moisture < int((20-dis)/2):
-                            area_map[row1][col1].moisture = int((20-dis)/2)
-                    except IndexError:
-                        pass
-
-def update_moisture(area_map):
-
-    for row in area_map:
-        for cell in row:
-            cell.moisture = 0
-
-    for row in area_map:
-        for cell in row:
-            if cell.water == True:
-                cell.moisture = 10
-                spread_moisture(area_map, cell.row, cell.col)
-
-    for row in area_map:
-        for cell in row:
-            if cell.moisture == -1:
-                cell.moisture = 0
-
-    temp_update(area_map, 'm')
-
-temp_update(area_map, 'b')
-
-#WATER AREA
-
-def check_neighbor_for_water(area_map, row, col):
-    if row == 0 or col == 0 or row == height - 1 or col == width - 1:
-        return True
-
-    for col1 in range(col - 1, col + 2):
-        for row1 in range(row - 1, row + 2):
-            if area_map[row1][col1].water == True:
-                return True
-
-def update_water_level(area_map, water_level):
-
-    for row in area_map:
-        for cell in row:
-            if cell.water == True and cell.topographic_level > water_level:
-                cell.water = False
-
-    counter1 = 0
-
-    for i in range(0,int(height/2)):
-
-        for cell in (area_map[counter1]):
-            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
-                cell.water = True
-
-
-        for i2 in range(counter1+1, height-(counter1+1)):
-            if area_map[i2][counter1].topographic_level <= water_level and check_neighbor_for_water(area_map, i2, (counter1+1)):
-                cell.water = True
-
-            elif area_map[i2][width-(counter1+1)].topographic_level <= water_level and check_neighbor_for_water(area_map, i2, (width-(counter1+1))):
-                cell.water = True
-
-
-        for col, cell in enumerate(area_map[height-(counter1+1)]):
-            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
-                cell.water = True
-
-        counter1 += 1
-
-    counter1 = 0
-
-    for i in range(int(height/2), 0, -1):
-
-        for cell in (area_map[counter1]):
-            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
-                cell.water = True
-
-        for col, cell in enumerate(area_map[height-(counter1+1)]):
-            if cell.topographic_level <= water_level and check_neighbor_for_water(area_map, cell.row, cell.col):
-                cell.water = True
-
-        counter1 += 1
-
-    update_moisture(area_map)
-
-update_water_level(area_map, water_level)
-
-#ENVIORMENTAL EVENTS
-
-def simulate_random_events(area_map):
-    global water_level, temperature_modifier
-    for _ in range(0,20):
+if map_mode:
+    while True:
+        map.plot_call()
+        print(f"Pass: p\nRaise water level: rw\nLower water level: lw\nRaise temp: rt\nLower temp: lt\nRandomize temp map: rnt\nSoil Deposit: sd\nSoil Erosion: se\nSimulate Random events: re\nQuit: q\n")
+        response = input('enviormental change: ').lower()
         print()
-        plot_call(area_map)
-        s(1)
-        ran = get_random_store_0_10()
-        if ran == 0:
-            print("RAISED WATER LEVEL")
-            raise_water(area_map)
-        elif ran == 1:
-            print("LOWER WATER LEVEL")
-            lower_water(area_map)
-        elif ran == 2:
-            print("RAISED TEMPERATURE LEVEL")
-            raise_temp(area_map)
-        elif ran == 3:
-            print("LOWER TEMPERATURE LEVEL")
-            lower_temp(area_map)
-        elif ran == 4:
-            print("RANDOMIZED TEMP MAP")
-            randomize_heat_map(area_map)
-        elif ran == 5:
-            print("SOIL DEPOSIT")
-            soil_deposit(area_map)
-        elif ran == 6:
-            print("SOIL EROSION")
-            soil_erosion(area_map)
-        else:
-            print("PASSED")
+        if response == 'p':
+            pass
+        elif response == 'rw':
+            map.raise_water()
+        elif response == 'lw':
+            map.lower_water()
+        elif response == 'rt':
+            map.raise_temp()
+        elif response == 'lt':
+            map.lower_temp()
+        elif response == 'rnt':
+            map.randomize_heat_map()
+        elif response == 'sd':
+            map.soil_deposit()
+        elif response == 'se':
+            map.soil_erosion()
+        elif response == 're':
+            map.simulate_random_events()
+        elif response == 'q':
+            break
+elif simulate_mode:
+    while True:
+        try:
+            print(year, len(plants))
+            if plants == {}:
+                make_new_plants()
 
-def raise_water(area_map):
-    global water_level
-    water_level += 1
-    print(f"new water level: {water_level}\n")
-    update_water_level(area_map, water_level)
+            keys = list(plants.keys())
+            cycle = Plants.cycle
+            for id in keys:
+                cycle(plants[id])
 
-def lower_water(area_map):
-    global water_level
-    water_level -= 1
-    print(f"new water level: {water_level}\n")
-    update_water_level(area_map, water_level)
+            for row in map.area_map:
+                for cell in row:
+                    cell.cramp_death()
+            if year % 5 == 0:
+                map.plot_call()
+            if year % 1000 == 0:
+                map.simulate_random_events()
 
-def raise_temp(area_map):
-    global temperature_modifier
-    temperature_modifier += 1
-    print(f"new temp level: {temperature_modifier}\n")
-    temp_update(area_map, 'm')
+            big_num = 0
+            lowest_num = 100
+            for row in map.area_map:
+                for cell in row:
+                    big_num += cell.tile_space_avalible
+                    if lowest_num > cell.tile_space_avalible:
+                        lowest_num = cell.tile_space_avalible
+            big_num = big_num/10000
+            print(big_num, lowest_num)
 
-def lower_temp(area_map):
-    global temperature_modifier
-    temperature_modifier -= 1
-    print(f"new temp level: {temperature_modifier}\n")
-    temp_update(area_map, 'm')
+            big_num = 0
+            highest = 0
+            for row in map.area_map:
+                for cell in row:
+                    big_num += len(cell.plants)
+                    if highest < len(cell.plants):
+                        highest = len(cell.plants)
+            big_num = big_num / 10000
+            print(big_num, highest)
+            print()
 
-def randomize_heat_map(area_map):
-    temp_update(area_map, 'r')
-
-def soil_deposit(area_map):
-    for row in area_map:
-        for cell in row:
-            if cell.water == True:
-                if get_random_store_1_3() == 1:
-                    cell.topographic_level += 1
-                    if cell.topographic_level > 10:
-                        cell.topographic_level = 10
-
-    update_water_level(area_map, water_level)
-
-def soil_erosion(area_map):
-    for row in area_map:
-        for cell in row:
-            if check_neighbor_for_water(area_map, cell.row, cell.col):
-                if get_random_store_0_10() == 1:
-                    cell.topographic_level -= 1
-                    if cell.topographic_level < 0:
-                        cell.topographic_level = 0
-
-    update_water_level(area_map, water_level)
-
-#PLOTING AREA
-
-def plot_call(area_map):
-
-    data1 = np.array([[tile.topographic_level for tile in row] for row in area_map])
-    data2 = np.array([[tile.soil_quality for tile in row] for row in area_map])
-    data3 = np.array([[tile.water for tile in row] for row in area_map])
-    data4 = np.array([[tile.moisture for tile in row] for row in area_map])
-    data5 = np.array([[tile.temperature_mod for tile in row] for row in area_map])
-    data6 = np.array([[tile.classification_num for tile in row] for row in area_map])
-
-    plt_data(data1, data2, data3, data4, data5, data6)
-
-
-#ENVIORMENTAL CHANGES
-
-while True:
-    plot_call(area_map)
-    print(f"Pass: p\nRaise water level: rw\nLower water level: lw\nRaise temp: rt\nLower temp: lt\nRandomize temp map: rnt\nSoil Deposit: sd\nSoil Erosion: se\nSimulate Random events: re\nQuit: q\n")
-    response = input('enviormental change: ').lower()
-    print()
-    if response == 'p':
-        pass
-    elif response == 'rw':
-        raise_water(area_map)
-    elif response == 'lw':
-        lower_water(area_map)
-    elif response == 'rt':
-        raise_temp(area_map)
-    elif response == 'lt':
-        lower_temp(area_map)
-    elif response == 'rnt':
-        randomize_heat_map(area_map)
-    elif response == 'sd':
-        soil_deposit(area_map)
-    elif response == 'se':
-        soil_erosion(area_map)
-    elif response == 're':
-        simulate_random_events(area_map)
-    elif response == 'q':
-        break
+            year+=1
+        except KeyboardInterrupt:
+            map.plot_call()
+            break
 
 """for row in area_map:
     for tile in row:
         print(tile.water,end=" ")
     print()"""
+
+if time_tracking:
+
+    pr.disable()
+    s = io.StringIO()
+    ps = pstats.Stats(pr, stream=s).sort_stats("cumtime")
+    ps.print_stats(15)  # top 15 slowest functions
+    print(s.getvalue())
