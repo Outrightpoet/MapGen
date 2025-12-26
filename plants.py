@@ -1,9 +1,11 @@
 from rand_storage import get_random_store_neg_1_1, get_random_store_0_10
 from plant_id_getter import get_plant_id
+from plant_species_name_getter import get_plant_species_name
+from plant_traits import Plant_Traits
 
 class Plants:
-    def __init__(self, id, plant_list, tile, area_map, parent=None):
-        self.traits = 'placeholder'
+    def __init__(self, id, plant_list, tile, area_map, plant_species, species_name, ready_to_split=0, parent=None):
+
         self.temperature_resistance = [4,6]
         self.nutrition_need = 2
         self.space_requirement = 10
@@ -12,6 +14,7 @@ class Plants:
         self.growth_rate = 1
         self.target_height = 10
         self.height = 0
+
         #land,semi_aquatic, aquatic
         self.water_affiliation = "land"
         self.status = "seed"
@@ -21,13 +24,40 @@ class Plants:
         self.area_map = area_map
         self.map_height = len(self.area_map)
         self.map_width = len(self.area_map[0])
+        self.plant_species = plant_species
+        self.species_name = species_name
 
+        self.ready_to_split = ready_to_split
 
         #maybe some more unique skills
         self.toxicity = 0
 
+        if parent == None:
+            self.traits = Plant_Traits(self)
+        else:
+            self.traits = Plant_Traits(self, parent.traits)
+
+    def check_and_split(self):
+        if self.ready_to_split == 2:
+            self.ready_to_split = 0
+            new_name = get_plant_species_name()
+            self.plant_species[new_name] = [1, {self.id: self}]
+            if len(self.plant_species[self.species_name][1]) == 1:
+                del self.plant_species[self.species_name]
+            else:
+                self.plant_species[self.species_name][0] -= 1
+                del self.plant_species[self.species_name][1][self.id]
+            self.species_name = new_name
+            #print(f"species ({new_name}) has been split")
+
     def die(self):
         self.tile.tile_space_avalible += self.space_requirement
+        if self.plant_species[self.species_name][0] == 1:
+            #print(f"{self.species_name} has gone extinct")
+            del self.plant_species[self.species_name]
+        else:
+            self.plant_species[self.species_name][0] -= 1
+            del self.plant_species[self.species_name][1][self.id]
         del self.tile.plants[self.id]
         del self.plant_list[self.id]
 
@@ -74,10 +104,16 @@ class Plants:
 
 
     def offspring(self, row, col):
-        plant_id = get_plant_id()
-        offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map, self)
-        self.plant_list[plant_id] = offspring
-        self.area_map[row][col].plants[plant_id] = offspring
-        self.area_map[row][col].tile_space_avalible -= offspring.space_requirement
+        try:
+            self.plant_species[self.species_name][0] += 1
+            plant_id = get_plant_id()
+            offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map, self.plant_species, self.species_name, self.ready_to_split, self)
+            self.plant_list[plant_id] = offspring
+            self.area_map[row][col].plants[plant_id] = offspring
+            self.area_map[row][col].tile_space_avalible -= offspring.space_requirement
+            self.plant_species[self.species_name][1][plant_id] = offspring
+            offspring.check_and_split()
+        except KeyError:
+            pass
 
 

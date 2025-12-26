@@ -2,12 +2,17 @@ from map_gen import Map
 from plants import Plants
 from plant_id_getter import get_plant_id
 import random
+from plant_species_name_getter import get_plant_species_name
 
 map = Map()
 plant_ids = 0
 plants = {}
 year = 0
 spread_requests = []
+initian_plant_pop = 10000
+first_plant_species_name = "OG_PLANTOIDS"
+
+plant_species = {first_plant_species_name: [initian_plant_pop, {}]}
 
 time_tracking = True
 
@@ -20,17 +25,19 @@ if time_tracking:
 
 
 def make_new_plants():
-    for _ in range(10000):
+    for _ in range(initian_plant_pop):
         plant_id = get_plant_id()
 
         row = random.randint(0,map.height-1)
         col = random.randint(0,map.width-1)
 
-        plant = Plants(plant_id, plants, map.area_map[row][col], map.area_map)
+        plant = Plants(plant_id, plants, map.area_map[row][col], map.area_map, plant_species, first_plant_species_name)
 
         plants[plant_id] = plant
         map.area_map[row][col].plants[plant_id] = plant
         map.area_map[row][col].tile_space_avalible -= plant.space_requirement
+        plant_species[first_plant_species_name][1][plant_id] = plant
+        plant_species[first_plant_species_name][0] += 1
 
 #POST MAP MAKEING STUFFS
 
@@ -115,6 +122,8 @@ elif simulate_mode:
                         highest = len(cell.plants)
             big_num = big_num / 10000
             print(big_num, highest)
+            print()
+            print(len(plant_species))
             print()
 
             year+=1
