@@ -1,5 +1,5 @@
 from rand_storage import get_random_store_0_100, get_random_store_neg_10_10
-
+import math
 
 class Plant_Traits():
     def __init__(self, plant, parent_traits=None, dose_speciate=True):
@@ -62,8 +62,8 @@ class Plant_Traits():
     def speciate(self):
         for trait in range(0,len(self.traits)):
             if get_random_store_0_100() == 0:
-                if trait == 7 or trait == 9 or trait == 11 and self.traits[trait+1] == 0:
-                    if trait == 8 or trait == 10 or trait == 12 and self.traits[trait-1] == 0:
+                if trait >= 7:
+                    if trait == 7 or trait == 9 or trait == 11 and self.traits[trait+1] == 0 or trait == 8 or trait == 10 or trait == 12 and self.traits[trait-1] == 0:
                         self.plant.ready_to_split += 1
                         self.traits[trait] += get_random_store_neg_10_10()
 
@@ -71,6 +71,7 @@ class Plant_Traits():
                             self.traits[trait] = 99
                         elif self.traits[trait] < 0:
                             self.traits[trait] = 1
+
                 elif trait < 7:
                     self.plant.ready_to_split += 1
                     self.traits[trait] += get_random_store_neg_10_10()
@@ -103,11 +104,11 @@ class Plant_Traits():
         else:
             self.plant.water_affiliation = "aquatic"
 
-        self.plant.temperature_resistance[0] = 4 - (self.cold_affinity/25) - (self.tuff_tissue/50) + (self.cold_weakness/20) + (self.soft_tissue/40)
-        self.plant.temperature_resistance[1] = 6 + (self.heat_affinity/25) - (self.tuff_tissue/50) + (self.heat_weakness/20) - (self.soft_tissue/40)
-        self.plant.nutrition_need = 4
-        self.plant.space_requirement = 10
-        self.plant.spread_size = 10
-        self.plant.spread_distance = 1
-        self.plant.growth_rate = 1 + self.aquatic_afinity*100
-        self.plant.target_height = 10 + self.aquatic_afinity*1000
+        self.plant.temperature_resistance[0] = math.floor(4 - (self.cold_affinity/25) - (self.tuff_tissue/50) + (self.cold_weakness/20) + (self.soft_tissue/40))
+        self.plant.temperature_resistance[1] = math.ceil(6 + (self.heat_affinity/25) + (self.tuff_tissue/50) - (self.heat_weakness/20) - (self.soft_tissue/40))
+        self.plant.nutrition_need = 4 - (self.low_nutritinal_need/50) + (self.tuff_tissue/50) - (self.soft_tissue/50) + (self.fruit_growth/25)
+        self.plant.space_requirement = 10 + (self.plant_size/10)
+        self.plant.spread_size = int(10 + (self.spreading_batch/5))
+        self.plant.spread_distance = int(1 + (self.spreading_range/33))
+        self.plant.growth_rate = ((1 + (self.soft_tissue/33) + (self.cold_weakness/33) + (self.heat_weakness/33)) / (1 + self.tuff_tissue/50)) / (1 + self.long_lived/50)
+        self.plant.target_height = 10 + (self.plant_size/10)

@@ -27,8 +27,12 @@ class Tile:
 
             #print(sorted_keys)
             #print(self.plants)
+            max = len(sorted_keys)
             i = 0
             while self.tile_space_avalible < 0:
+                if i+1 >= max:
+                    self.tile_space_avalible = 0
+                    break
                 self.plants[sorted_keys[i]].die()
                 i += 1
 

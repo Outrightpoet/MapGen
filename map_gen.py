@@ -268,9 +268,11 @@ class Map:
                     elif cell.topographic_level < 5:
                         cell.temperature_mod += int(cell.topographic_level / 2)
                     if cell.moisture > 5:
-                        cell.temperature_mod -= int(cell.moisture / 4)
+                        pass
+                        #cell.temperature_mod -= int(cell.moisture / 4)
                     else:
-                        cell.temperature_mod += int((10 - cell.moisture) / 4)
+                        pass
+                        #cell.temperature_mod += int((10 - cell.moisture) / 4)
 
                     cell.temperature_mod += self.temperature_modifier
 

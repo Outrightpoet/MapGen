@@ -131,54 +131,52 @@ def plt_data(area_map, plant_species, data1, data2, data3, data4, data5, data6, 
     axs[5, 1].legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
     axs[5, 1].set_title(f'Average Traits')
 
-    if len(data8) == 5:
+    for index, species in enumerate(data8):
 
-        for index, species in enumerate(data8):
-
-            data = np.array([
-                [
-                    sum(1 for plant in cell.plants.values() if plant.species_name == species)
-                    for cell in row
-                ]
-                for row in area_map
-            ])
-
-            axs[index, 2].imshow(data, cmap='viridis', interpolation='nearest')
-            axs[index, 2].title.set_text(f'{species} Plant Life')
-
-            axs[index, 1] = plt.subplot(6, 3, (index * 3) + 2, polar=True)
-
-            labels = [
-                'fruit_growth', 'aquatic_afinity', 'plant_size', 'long_lived',
-                'spreading_range', 'spreading_batch', 'low_nutritinal_need',
-                'tuff_tissue', 'soft_tissue', 'heat_affinity', 'heat_weakness',
-                'cold_affinity', 'cold_weakness'
+        data = np.array([
+            [
+                sum(1 for plant in cell.plants.values() if plant.species_name == species)
+                for cell in row
             ]
+            for row in area_map
+        ])
 
-            values = [plant_species[species][2][0],
-                      plant_species[species][2][1],
-                      plant_species[species][2][2],
-                      plant_species[species][2][3],
-                      plant_species[species][2][4],
-                      plant_species[species][2][5],
-                      plant_species[species][2][6],
-                      plant_species[species][2][7],
-                      plant_species[species][2][8],
-                      plant_species[species][2][9],
-                      plant_species[species][2][10],
-                      plant_species[species][2][11],
-                      plant_species[species][2][12]]
+        axs[index, 2].imshow(data, cmap='viridis', interpolation='nearest')
+        axs[index, 2].title.set_text(f'{species} Plant Life')
 
-            values += values[:1]
+        axs[index, 1] = plt.subplot(6, 3, (index * 3) + 2, polar=True)
 
-            axs[index, 1].plot(angles, values, linewidth=2, label=species)
-            axs[index, 1].fill(angles, values, alpha=0.25)
-            axs[index, 1].set_xticks(angles[:-1])
-            axs[index, 1].set_xticklabels(labels)
-            axs[index, 1].set_yticklabels([])
-            axs[index, 1].set_ylim(0, 100)
-            axs[index, 1].legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
-            axs[index, 1].set_title(f'{species} Traits')
+        labels = [
+            'fruit_growth', 'aquatic_afinity', 'plant_size', 'long_lived',
+            'spreading_range', 'spreading_batch', 'low_nutritinal_need',
+            'tuff_tissue', 'soft_tissue', 'heat_affinity', 'heat_weakness',
+            'cold_affinity', 'cold_weakness'
+        ]
+
+        values = [plant_species[species][2][0],
+                  plant_species[species][2][1],
+                  plant_species[species][2][2],
+                  plant_species[species][2][3],
+                  plant_species[species][2][4],
+                  plant_species[species][2][5],
+                  plant_species[species][2][6],
+                  plant_species[species][2][7],
+                  plant_species[species][2][8],
+                  plant_species[species][2][9],
+                  plant_species[species][2][10],
+                  plant_species[species][2][11],
+                  plant_species[species][2][12]]
+
+        values += values[:1]
+
+        axs[index, 1].plot(angles, values, linewidth=2, label=species)
+        axs[index, 1].fill(angles, values, alpha=0.25)
+        axs[index, 1].set_xticks(angles[:-1])
+        axs[index, 1].set_xticklabels(labels)
+        axs[index, 1].set_yticklabels([])
+        axs[index, 1].set_ylim(0, 100)
+        axs[index, 1].legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
+        axs[index, 1].set_title(f'{species} Traits')
 
 
 
