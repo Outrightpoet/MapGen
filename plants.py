@@ -4,7 +4,7 @@ from plant_species_name_getter import get_plant_species_name
 from plant_traits import Plant_Traits
 
 class Plants:
-    def __init__(self, id, plant_list, tile, area_map, plant_species, species_name, ready_to_split=0, parent=None):
+    def __init__(self, id, plant_list, tile, area_map, plant_species, species_name, map_height, map_width, ready_to_split=0, parent=None):
 
         self.temperature_resistance = [4,6]
         self.nutrition_need = 2
@@ -22,8 +22,8 @@ class Plants:
         self.plant_list = plant_list
         self.tile = tile
         self.area_map = area_map
-        self.map_height = len(self.area_map)
-        self.map_width = len(self.area_map[0])
+        self.map_height = map_height
+        self.map_width = map_width
         self.plant_species = plant_species
         self.species_name = species_name
 
@@ -32,16 +32,35 @@ class Plants:
         #maybe some more unique skills
         self.toxicity = 0
 
+
         if parent == None:
             self.traits = Plant_Traits(self)
         else:
             self.traits = Plant_Traits(self, parent.traits)
 
+        self.traits.get_stats()
+
+        self.parent = "done"
+
+
     def check_and_split(self):
         if self.ready_to_split == 2:
             self.ready_to_split = 0
             new_name = get_plant_species_name()
-            self.plant_species[new_name] = [1, {self.id: self}]
+            self.plant_species[new_name] = [1, {self.id: self}, [self.traits.fruit_growth,
+                                                                self.traits.aquatic_afinity,
+                                                                self.traits.plant_size,
+                                                                self.traits.long_lived,
+                                                                self.traits.spreading_range,
+                                                                self.traits.spreading_batch,
+                                                                self.traits.low_nutritinal_need,
+                                                                self.traits.tuff_tissue,
+                                                                self.traits.soft_tissue,
+                                                                self.traits.heat_affinity,
+                                                                self.traits.heat_weakness,
+                                                                self.traits.cold_affinity,
+                                                                self.traits.cold_weakness]]
+
             if len(self.plant_species[self.species_name][1]) == 1:
                 del self.plant_species[self.species_name]
             else:
@@ -73,7 +92,7 @@ class Plants:
             self.die()
         elif self.tile.classification == "lake" and self.water_affiliation == "land":
             self.die()
-        elif self.tile.water == False and self.water_affiliation != "land":
+        elif self.tile.water == False and self.water_affiliation == "ocean":
             self.die()
 
         if self.height < self.target_height:
@@ -87,6 +106,8 @@ class Plants:
             self.space_requirement += self.space_requirement
         elif self.status == "mature" and self.height >= self.target_height:
             self.status = "elder"
+            self.tile.tile_space_avalible -= self.space_requirement
+            self.space_requirement += self.space_requirement
 
         if self.status != "seed" and get_random_store_0_10() == 0:
             spread_requests.append(self)
@@ -104,16 +125,29 @@ class Plants:
 
 
     def offspring(self, row, col):
-        try:
-            self.plant_species[self.species_name][0] += 1
-            plant_id = get_plant_id()
-            offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map, self.plant_species, self.species_name, self.ready_to_split, self)
-            self.plant_list[plant_id] = offspring
-            self.area_map[row][col].plants[plant_id] = offspring
-            self.area_map[row][col].tile_space_avalible -= offspring.space_requirement
-            self.plant_species[self.species_name][1][plant_id] = offspring
-            offspring.check_and_split()
-        except KeyError:
-            pass
+
+        if self.species_name not in self.plant_species:
+            self.plant_species[self.species_name] = [0, {}, [self.traits.fruit_growth,
+                                                                self.traits.aquatic_afinity,
+                                                                self.traits.plant_size,
+                                                                self.traits.long_lived,
+                                                                self.traits.spreading_range,
+                                                                self.traits.spreading_batch,
+                                                                self.traits.low_nutritinal_need,
+                                                                self.traits.tuff_tissue,
+                                                                self.traits.soft_tissue,
+                                                                self.traits.heat_affinity,
+                                                                self.traits.heat_weakness,
+                                                                self.traits.cold_affinity,
+                                                                self.traits.cold_weakness]]
+
+        plant_id = get_plant_id()
+        offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map, self.plant_species, self.species_name, self.map_height, self.map_width, self.ready_to_split, self)
+        self.plant_list[plant_id] = offspring
+        self.area_map[row][col].plants[plant_id] = offspring
+        self.area_map[row][col].tile_space_avalible -= offspring.space_requirement
+        self.plant_species[self.species_name][1][plant_id] = offspring
+        self.plant_species[self.species_name][0] += 1
+        offspring.check_and_split()
 
 

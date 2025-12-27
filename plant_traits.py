@@ -8,25 +8,39 @@ class Plant_Traits():
 
         #self.diet_scale = getattr(parent_traits, "diet_scale", 0)
 
-        self.fruit_growth = getattr(self, "fruit_growth", 0)
-        self.aquatic_afinity = getattr(self, "aquatic_afinity", 0)
-        self.plant_size = getattr(self, "plant_size", 0)
-        self.long_lived = getattr(self, "long_lived", 0)
-        self.spreading_range = getattr(self, "spreading_range", 0)
-        self.spreading_batch = getattr(self, "spreading_batch", 10)
-        self.low_nutritinal_need = getattr(self, "low_nutritinal_need", 0)
+        if parent_traits != None:
+            [self.fruit_growth,
+             self.aquatic_afinity,
+             self.plant_size,
+             self.long_lived,
+             self.spreading_range,
+             self.spreading_batch,
+             self.low_nutritinal_need,
+             self.tuff_tissue,
+             self.soft_tissue,
+             self.heat_affinity,
+             self.heat_weakness,
+             self.cold_affinity,
+             self.cold_weakness] = parent_traits.traits
 
-        self.tuff_tissue = getattr(self, "tuff_tissue", 0)
-        self.soft_tissue = getattr(self, "soft_tissue", 0)
+        else:
+            self.fruit_growth = 0
+            self.aquatic_afinity = 0
+            self.plant_size = 0
+            self.long_lived = 0
+            self.spreading_range = 0
+            self.spreading_batch = 0
+            self.low_nutritinal_need = 0
+            self.tuff_tissue = 0
+            self.soft_tissue = 0
+            self.heat_affinity = 0
+            self.heat_weakness = 0
+            self.cold_affinity = 0
+            self.cold_weakness = 0
 
-        self.heat_affinity = getattr(self, "heat_affinity", 0)
-        self.heat_weakness = getattr(self, "heat_weakness", 0)
-
-        self.cold_affinity = getattr(self, "cold_affinity", 0)
-        self.cold_weakness = getattr(self, "cold_weakness", 0)
 
         #not gonna add yet cuase i dont feel like it
-        self.toxicity = getattr(self, "toxicity", 0)
+        #self.toxicity = getattr(self, "toxicity", 0)
 
         self.traits = [self.fruit_growth,
                        self.aquatic_afinity,
@@ -82,11 +96,18 @@ class Plant_Traits():
 
     def get_stats(self):
 
-        self.plant.temperature_resistance = [4, 6]
-        self.plant.nutrition_need = 2
+        if self.aquatic_afinity <= 33:
+            self.plant.water_affiliation = "land"
+        elif self.aquatic_afinity <= 66:
+            self.plant.water_affiliation = "semi-aquatic"
+        else:
+            self.plant.water_affiliation = "aquatic"
+
+        self.plant.temperature_resistance[0] = 4 - (self.cold_affinity/25) - (self.tuff_tissue/50) + (self.cold_weakness/20) + (self.soft_tissue/40)
+        self.plant.temperature_resistance[1] = 6 + (self.heat_affinity/25) - (self.tuff_tissue/50) + (self.heat_weakness/20) - (self.soft_tissue/40)
+        self.plant.nutrition_need = 4
         self.plant.space_requirement = 10
         self.plant.spread_size = 10
         self.plant.spread_distance = 1
-        self.plant.growth_rate = 1
-        self.plant.target_height = 10
-        self.plant.height = 0
+        self.plant.growth_rate = 1 + self.aquatic_afinity*100
+        self.plant.target_height = 10 + self.aquatic_afinity*1000

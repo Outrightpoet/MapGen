@@ -2,8 +2,6 @@ from time import sleep as s
 from rand_storage import get_random_store_1_3, get_random_store_neg_1_1, get_random_store_0_10, get_random_store_0_6
 import random
 from tiles import Tile
-import numpy as np
-from plots import plt_data
 
 class Map:
     def __init__(self):
@@ -179,7 +177,7 @@ class Map:
                     elif self.area_map[counter1][counter2].soil_quality > 10:
                         self.area_map[counter1][counter2].soil_quality = 10
 
-                    self.area_map[counter1][counter2].tile_space_avalible = (self.area_map[counter1][counter2].soil_quality * 10)
+                    self.area_map[counter1][counter2].tile_space_avalible = (self.area_map[counter1][counter2].soil_quality * 10)+10
 
                 counter1 -= 1
                 counter2 += 1
@@ -443,7 +441,6 @@ class Map:
     def simulate_random_events(self):
         for _ in range(0,1):
             print()
-            self.plot_call()
             s(1)
             ran = get_random_store_0_6()
             if ran == 0:
@@ -515,17 +512,3 @@ class Map:
                             cell.topographic_level = 0
 
         self.update_water_level()
-
-    #PLOTING AREA
-
-    def plot_call(self):
-
-        data1 = np.array([[tile.topographic_level for tile in row] for row in self.area_map])
-        data2 = np.array([[tile.soil_quality for tile in row] for row in self.area_map])
-        data3 = np.array([[tile.water for tile in row] for row in self.area_map])
-        data4 = np.array([[tile.moisture for tile in row] for row in self.area_map])
-        data5 = np.array([[tile.temperature_mod for tile in row] for row in self.area_map])
-        data6 = np.array([[tile.classification_num for tile in row] for row in self.area_map])
-        data7 = np.array([[len(tile.plants) for tile in row] for row in self.area_map])
-
-        plt_data(data1, data2, data3, data4, data5, data6, data7)
