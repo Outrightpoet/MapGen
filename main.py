@@ -120,7 +120,7 @@ elif simulate_mode:
 
             if year % 100 == 0 and year % 500 != 0:
                 plot_call(map.area_map)
-            if year % 500 == 0:
+            if year % 1000 == 0:
                 map.simulate_random_events()
                 plot_call(map.area_map)
 

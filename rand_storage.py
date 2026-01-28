@@ -8,6 +8,7 @@ random_store_0_10 = [random.randint(0,10) for i in range(1000)]
 random_store_0_6 = [random.randint(0,6) for i in range(1000)]
 random_store_0_100 = [random.randint(0,100) for i in range(1000)]
 random_store_neg_10_10 = [random.randint(-10,10) for i in range(1000)]
+random_store_neg_5_5 = [random.randint(-5,5) for i in range(1000)]
 
 def get_random_store_1_3():
     global count
@@ -62,3 +63,12 @@ def get_random_store_neg_10_10():
     except IndexError:
         count = 0
         return random_store_neg_10_10[count]
+
+def get_random_store_neg_5_5():
+    global count
+    count += 1
+    try:
+        return random_store_neg_5_5[count]
+    except IndexError:
+        count = 0
+        return random_store_neg_5_5[count]
