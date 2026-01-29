@@ -5,7 +5,7 @@ from numpy.ma.extras import average
 
 
 def plt_data(area_map, plant_species, data1, data2, data3, data4, data5, data6, data7, data8):
-    fig, axs = plt.subplots(6,3, figsize = (30,60))
+    fig, axs = plt.subplots(6,3, figsize = (15,30))
 
     axs[0,0].imshow(data1, cmap='Reds', interpolation='nearest')
     axs[0,0].title.set_text('Topographic Level')

@@ -150,5 +150,3 @@ class Plants:
         self.plant_species[self.species_name][1][plant_id] = offspring
         self.plant_species[self.species_name][0] += 1
         offspring.check_and_split()
-
-
