@@ -32,15 +32,16 @@ class Plants:
         #maybe some more unique skills
         self.toxicity = 0
 
+        self.parent = parent
 
-        if parent == None:
+        if self.parent == None:
             self.traits = Plant_Traits(self)
         else:
             self.traits = Plant_Traits(self, parent.traits)
 
         self.traits.get_stats()
 
-        self.parent = "done"
+        self.parent = None
 
 
     def check_and_split(self):

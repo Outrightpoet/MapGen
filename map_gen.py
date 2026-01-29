@@ -7,7 +7,7 @@ class Map:
     def __init__(self):
         self.height = 100
         self.width = 100
-        self.water_level = 3
+        self.water_level = 4
         self.temperature_modifier = 0
         self.area_map = []
 

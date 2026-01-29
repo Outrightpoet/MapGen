@@ -13,8 +13,10 @@ spread_requests = []
 initian_plant_pop = 10000
 run_time = 10001
 first_plant_species_name = "OG_PLANTOIDS"
+first_plant_species_name_aquatic = "OG_PLANTOIDS_AQUATIC"
 
-plant_species = {first_plant_species_name: [initian_plant_pop, {}, [0,0,0,0,0,0,0,0,0,0,0,0,0]]}
+plant_species = {first_plant_species_name: [0, {}, [0,0,0,0,0,0,0,0,0,0,0,0,0]],
+                 first_plant_species_name_aquatic: [0, {}, [0,100,0,0,0,0,0,0,0,0,0,0,0]]}
 
 time_tracking = True
 
@@ -34,17 +36,19 @@ def make_new_plants():
         col = random.randint(0,map.width-1)
 
         plant = Plants(plant_id, plants, map.area_map[row][col], map.area_map, plant_species, first_plant_species_name, map.height, map.width)
+        if map.area_map[row][col].water == True:
+            plant.traits.traits[1] = 100
+            plant.water_affiliation = "aquatic"
+            plant.species_name = "OG_PLANTOIDS_AQUATIC"
+            plant_species[first_plant_species_name_aquatic][1][plant_id] = plant
+            plant_species[first_plant_species_name_aquatic][0] += 1
+        else:
+            plant_species[first_plant_species_name][1][plant_id] = plant
+            plant_species[first_plant_species_name][0] += 1
 
         plants[plant_id] = plant
         map.area_map[row][col].plants[plant_id] = plant
         map.area_map[row][col].tile_space_avalible -= plant.space_requirement
-        plant_species[first_plant_species_name][1][plant_id] = plant
-
-        if _ > initian_plant_pop/2:
-            plant.traits.aquatic_afinity = 100
-            plant.traits.get_stats()
-
-    plant_species[first_plant_species_name][0] = initian_plant_pop
 
 #POST MAP MAKEING STUFFS
 
@@ -120,7 +124,7 @@ elif simulate_mode:
 
             if year % 100 == 0 and year % 500 != 0:
                 plot_call(map.area_map)
-            if year % 1000 == 0:
+            if year % 500 == 0:
                 map.simulate_random_events()
                 plot_call(map.area_map)
 
