@@ -111,7 +111,48 @@ class Plants:
             self.tile.tile_space_avalible -= self.space_requirement
             self.space_requirement += self.space_requirement
 
-        if self.status != "seed" and get_random_store_0_10() < 1:
+        if self.status != "seed" and get_random_store_0_10() < 2:
             spread_requests.append(self)
 
-#ading changes
+        """tile = self.tile
+        status = self.status
+
+        soil = tile.soil_quality
+        temp = tile.temperature
+        kind = tile.classification
+        water = tile.water
+
+        min_t, max_t = self.temperature_resistance
+
+        r = get_random_store_0_10()
+
+        # ---- Death ----
+        if (
+                (status == "elder" and r == 0)
+                or soil < self.nutrition_need
+                or not (min_t <= temp <= max_t)
+                or (kind == "ocean" and self.water_affiliation != "aquatic")
+                or (kind == "lake" and self.water_affiliation == "land")
+                or (not water and self.water_affiliation == "ocean")
+        ):
+            self.die(un_active_plants)
+            return
+
+        # ---- Growth ----
+        diff = self.height - self.target_height
+
+        if diff < 0:
+            self.height += self.growth_rate
+        else:
+            self.height += self.growth_rate / (diff + 1)
+
+        # ---- Promotion ----
+        if status == "seed" and self.height > self.target_height/2:
+            self.status = "mature"
+
+        elif status == "mature" and self.height >= self.target_height:
+            self.status = "elder"
+
+        # ---- Spread ----
+        if status != "seed" and r < 2:
+            spread_requests.append(self)"""

@@ -186,7 +186,7 @@ class Map:
                     elif self.area_map[counter1][counter2].soil_quality > 10:
                         self.area_map[counter1][counter2].soil_quality = 10
 
-                    self.area_map[counter1][counter2].tile_space_avalible = (self.area_map[counter1][counter2].soil_quality * 10)+10
+                    self.area_map[counter1][counter2].tile_space_avalible = (self.area_map[counter1][counter2].soil_quality * 10)+30
 
                 counter1 -= 1
                 counter2 += 1
@@ -568,5 +568,3 @@ class Map:
                             cell.topographic_level = 0
 
         self.update_water_level()
-
-#adding changes

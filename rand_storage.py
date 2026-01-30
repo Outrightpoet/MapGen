@@ -72,5 +72,3 @@ def get_random_store_neg_5_5():
     except IndexError:
         count = 0
         return random_store_neg_5_5[count]
-
-#ading changes
