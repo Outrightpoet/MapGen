@@ -56,6 +56,7 @@ class Map:
             if run > self.height:
                 run = self.height
             for i in range(0,run+1):
+                #this if, elif, else statment trys to grab both nehiboring cell toporaphic levels or one based on if it is on one of the walls either counter 1,2 == 0
                 if counter2 == 0:
                     try:
                         neighbor1 = self.area_map[counter1-1][0].topographic_level
@@ -79,7 +80,9 @@ class Map:
                         neighbor2 = -1
 
                 if counter1 < self.height and counter2 < self.width:
+                    #makes sure the cell exists
                     if neighbor1 != -1 and neighbor2 != -1:
+                        #assigns the topographic level based on neighbors
                         self.area_map[counter1][counter2].topographic_level = round((neighbor1 + neighbor2)/2) + get_random_store_neg_1_1()
                     else:
                         rand = get_random_store_1_3()
@@ -95,11 +98,14 @@ class Map:
                         else:
                             self.area_map[counter1][counter2].topographic_level = neighbor_val + 1
 
-                    if get_random_store_0_10() == 0 and get_random_store_0_10() == 0:
+                    if get_random_store_0_10() == 0:
+                        #pulls the level more central
                         if self.area_map[counter1][counter2].topographic_level > 5:
-                            self.area_map[counter1][counter2].topographic_level -= 1
+                            pull = -int((self.area_map[counter1][counter2].topographic_level-5)/2.5)
+                            self.area_map[counter1][counter2].topographic_level += pull
                         elif self.area_map[counter1][counter2].topographic_level < 5:
-                            self.area_map[counter1][counter2].topographic_level += 1
+                            pull = int((5-self.area_map[counter1][counter2].topographic_level)/2.5)
+                            self.area_map[counter1][counter2].topographic_level += pull
 
                     if self.area_map[counter1][counter2].topographic_level < 0:
                         self.area_map[counter1][counter2].topographic_level = 0
@@ -166,11 +172,14 @@ class Map:
                         else:
                             self.area_map[counter1][counter2].soil_quality = neighbor_val + 1
 
-                    if get_random_store_0_10() == 0 and get_random_store_0_10() == 0:
+                    if get_random_store_0_10() < 2:
+                        # pulls the level more central
                         if self.area_map[counter1][counter2].soil_quality > 5:
-                            self.area_map[counter1][counter2].soil_quality -= 1
+                            pull = -int((self.area_map[counter1][counter2].soil_quality - 5) / 2.5)
+                            self.area_map[counter1][counter2].soil_quality += pull
                         elif self.area_map[counter1][counter2].soil_quality < 5:
-                            self.area_map[counter1][counter2].soil_quality += 1
+                            pull = int((5 - self.area_map[counter1][counter2].soil_quality) / 2.5)
+                            self.area_map[counter1][counter2].soil_quality += pull
 
                     if self.area_map[counter1][counter2].soil_quality < 0:
                         self.area_map[counter1][counter2].soil_quality = 0
@@ -184,7 +193,6 @@ class Map:
             set += 1
             counter1 = 0
             counter2 = 0
-
 
     # TEMP GEN
 
@@ -241,11 +249,14 @@ class Map:
                             else:
                                 self.area_map[counter1][counter2].temperature = neighbor_val + 1
 
-                        if get_random_store_0_10() == 0 and get_random_store_0_10() == 0:
+                        if get_random_store_0_10() < 2:
+                            # pulls the level more central
                             if self.area_map[counter1][counter2].temperature > 5:
-                                self.area_map[counter1][counter2].temperature -= 1
+                                pull = -int((self.area_map[counter1][counter2].temperature - 5) / 2.5)
+                                self.area_map[counter1][counter2].temperature += pull
                             elif self.area_map[counter1][counter2].temperature < 5:
-                                self.area_map[counter1][counter2].temperature += 1
+                                pull = int((5 - self.area_map[counter1][counter2].temperature) / 2.5)
+                                self.area_map[counter1][counter2].temperature += pull
 
                         if self.area_map[counter1][counter2].temperature < 0:
                             self.area_map[counter1][counter2].temperature = 0
@@ -281,7 +292,6 @@ class Map:
                         cell.temperature_mod = 10
 
         self.classify_map()
-
 
     # BIOME CLASSIFICATION
 
@@ -500,10 +510,11 @@ class Map:
             elif ran == 3:
                 print("LOWER TEMPERATURE LEVEL")
                 self.lower_temp()
-            elif ran == 4:
+            elif ran == 4 and 1==2:
+                #DISABLED FOR NOW
                 print("RANDOMIZED TEMP MAP")
                 self.randomize_heat_map()
-            elif ran == 5:
+            elif ran == 5 or ran == 4:
                 print("SOIL DEPOSIT")
                 self.soil_deposit()
             elif ran == 6:

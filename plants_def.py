@@ -43,7 +43,6 @@ class Plants:
 
         self.parent = None
 
-
     def check_and_split(self):
         if self.ready_to_split == 2:
             self.ready_to_split = 0
@@ -70,7 +69,8 @@ class Plants:
             self.species_name = new_name
             #print(f"species ({new_name}) has been split")
 
-    def die(self):
+    def die(self, un_active_plants):
+        un_active_plants.append(self)
         self.tile.tile_space_avalible += self.space_requirement
         if self.plant_species[self.species_name][0] == 1:
             #print(f"{self.species_name} has gone extinct")
@@ -81,20 +81,20 @@ class Plants:
         del self.tile.plants[self.id]
         del self.plant_list[self.id]
 
-    def cycle(self, spread_requests):
+    def cycle(self, spread_requests, un_active_plants):
 
         if self.status == "elder" and get_random_store_0_10() == 0:
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.soil_quality < self.nutrition_need:
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.temperature < self.temperature_resistance[0] or self.tile.temperature > self.temperature_resistance[1]:
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.classification == "ocean" and self.water_affiliation != "aquatic":
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.classification == "lake" and self.water_affiliation == "land":
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.water == False and self.water_affiliation == "ocean":
-            self.die()
+            self.die(un_active_plants)
 
         if self.height < self.target_height:
             self.height += self.growth_rate
@@ -105,48 +105,12 @@ class Plants:
             self.status = "mature"
             self.tile.tile_space_avalible -= self.space_requirement
             self.space_requirement += self.space_requirement
+
         elif self.status == "mature" and self.height >= self.target_height:
             self.status = "elder"
             self.tile.tile_space_avalible -= self.space_requirement
             self.space_requirement += self.space_requirement
 
-        if self.status != "seed" and get_random_store_0_10() == 0:
+        if self.status != "seed" and get_random_store_0_10() < 1:
             spread_requests.append(self)
 
-    def resolve_spread(self):
-        row = self.tile.row
-        col = self.tile.col
-        if self.spread_distance == 1:
-            for _ in range(0, self.spread_size):
-                row = row + get_random_store_neg_1_1()
-                col = col + get_random_store_neg_1_1()
-                if row >= 0 and row < self.map_height and col >= 0 and col < self.map_width:
-                    if self.area_map[row][col].tile_space_avalible > -20:
-                        self.offspring(row, col)
-
-
-    def offspring(self, row, col):
-
-        if self.species_name not in self.plant_species:
-            self.plant_species[self.species_name] = [0, {}, [self.traits.fruit_growth,
-                                                                self.traits.aquatic_afinity,
-                                                                self.traits.plant_size,
-                                                                self.traits.long_lived,
-                                                                self.traits.spreading_range,
-                                                                self.traits.spreading_batch,
-                                                                self.traits.low_nutritinal_need,
-                                                                self.traits.tuff_tissue,
-                                                                self.traits.soft_tissue,
-                                                                self.traits.heat_affinity,
-                                                                self.traits.heat_weakness,
-                                                                self.traits.cold_affinity,
-                                                                self.traits.cold_weakness]]
-
-        plant_id = get_plant_id()
-        offspring = Plants(plant_id, self.plant_list, self.area_map[row][col], self.area_map, self.plant_species, self.species_name, self.map_height, self.map_width, self.ready_to_split, self)
-        self.plant_list[plant_id] = offspring
-        self.area_map[row][col].plants[plant_id] = offspring
-        self.area_map[row][col].tile_space_avalible -= offspring.space_requirement
-        self.plant_species[self.species_name][1][plant_id] = offspring
-        self.plant_species[self.species_name][0] += 1
-        offspring.check_and_split()
