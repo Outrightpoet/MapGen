@@ -39,4 +39,3 @@ class Tile:
 
         #print(f"{self.row}:{self.col} ending with {self.tile_space_avalible} after")
         #print()
-
