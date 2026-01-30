@@ -70,7 +70,8 @@ class Plants:
             self.species_name = new_name
             #print(f"species ({new_name}) has been split")
 
-    def die(self):
+    def die(self, un_active_plants):
+        un_active_plants.append(self)
         self.tile.tile_space_avalible += self.space_requirement
         if self.plant_species[self.species_name][0] == 1:
             #print(f"{self.species_name} has gone extinct")
@@ -81,20 +82,20 @@ class Plants:
         del self.tile.plants[self.id]
         del self.plant_list[self.id]
 
-    def cycle(self, spread_requests):
+    def cycle(self, spread_requests, un_active_plants):
 
         if self.status == "elder" and get_random_store_0_10() == 0:
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.soil_quality < self.nutrition_need:
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.temperature < self.temperature_resistance[0] or self.tile.temperature > self.temperature_resistance[1]:
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.classification == "ocean" and self.water_affiliation != "aquatic":
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.classification == "lake" and self.water_affiliation == "land":
-            self.die()
+            self.die(un_active_plants)
         elif self.tile.water == False and self.water_affiliation == "ocean":
-            self.die()
+            self.die(un_active_plants)
 
         if self.height < self.target_height:
             self.height += self.growth_rate
@@ -123,7 +124,6 @@ class Plants:
                 if row >= 0 and row < self.map_height and col >= 0 and col < self.map_width:
                     if self.area_map[row][col].tile_space_avalible > -20:
                         self.offspring(row, col)
-
 
     def offspring(self, row, col):
 

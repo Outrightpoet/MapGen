@@ -17,7 +17,7 @@ class Tile:
         self.plants = {}
         #
 
-    def cramp_death(self):
+    def cramp_death(self, un_active_plants):
         #print(f"{self.row}:{self.col} is considering cramp death with {self.tile_space_avalible}")
         if self.tile_space_avalible < 0 and self.soil_quality != 0:
 
@@ -33,7 +33,7 @@ class Tile:
                 if i+1 >= max:
                     self.tile_space_avalible = 0
                     break
-                self.plants[sorted_keys[i]].die()
+                self.plants[sorted_keys[i]].die(un_active_plants)
                 i += 1
 
 

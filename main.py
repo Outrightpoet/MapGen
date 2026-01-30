@@ -1,17 +1,19 @@
 from map_gen import Map
-from plants import Plants
+from plants_def import Plants
 from plant_id_getter import get_plant_id
 import random
 import numpy as np
 from plots import plt_data
+from rand_storage import get_random_store_neg_1_1
 
 map = Map()
 plant_ids = 0
 plants = {}
+un_active_plants = []
 year = 0
 spread_requests = []
 initian_plant_pop = 10000
-run_time = 10001
+run_time = 2000
 first_plant_species_name = "OG_PLANTOIDS"
 first_plant_species_name_aquatic = "OG_PLANTOIDS_AQUATIC"
 
@@ -112,15 +114,64 @@ elif simulate_mode:
             cycle = Plants.cycle
 
             for id in keys:
-                plants[id].cycle(spread_requests)
+                plants[id].cycle(spread_requests, un_active_plants)
+
 
             for plant in spread_requests:
-                plant.resolve_spread()
+                row = plant.tile.row
+                col = plant.tile.col
+                if plant.spread_distance == 1:
+                    for _ in range(0, plant.spread_size):
+                        row = row + get_random_store_neg_1_1()
+                        col = col + get_random_store_neg_1_1()
+                        if row >= 0 and row < plant.map_height and col >= 0 and col < plant.map_width:
+                            if plant.area_map[row][col].tile_space_avalible > -20:
+                                if plant.species_name not in plant.plant_species:
+                                    traits = plant.traits
+                                    plant.plant_species[plant.species_name] = [0, {}, [traits.fruit_growth,
+                                                                                     traits.aquatic_afinity,
+                                                                                     traits.plant_size,
+                                                                                     traits.long_lived,
+                                                                                     traits.spreading_range,
+                                                                                     traits.spreading_batch,
+                                                                                     traits.low_nutritinal_need,
+                                                                                     traits.tuff_tissue,
+                                                                                     traits.soft_tissue,
+                                                                                     traits.heat_affinity,
+                                                                                     traits.heat_weakness,
+                                                                                     traits.cold_affinity,
+                                                                                     traits.cold_weakness]]
+
+                                if un_active_plants == []:
+                                    plant_id = get_plant_id()
+                                    offspring = Plants(plant_id, plant.plant_list, plant.area_map[row][col], plant.area_map,plant.plant_species, plant.species_name, plant.map_height, plant.map_width,plant.ready_to_split, plant)
+                                else:
+                                    offspring = un_active_plants[0]
+                                    un_active_plants.pop(0)
+                                    plant_id = offspring.id
+                                    offspring.height = 0
+                                    offspring.status = "seed"
+                                    offspring.tile = offspring.area_map[row][col]
+                                    offspring.plant_species = plant_species
+                                    offspring.species_name = plant.species_name
+                                    offspring.ready_to_split = plant.ready_to_split
+                                    offspring.parent = plant
+                                    offspring.traits.traits = plant.traits.traits
+                                    offspring.traits.speciate()
+                                    offspring.traits.get_stats()
+
+                                plant.plant_list[plant_id] = offspring
+                                plant.area_map[row][col].plants[plant_id] = offspring
+                                plant.area_map[row][col].tile_space_avalible -= offspring.space_requirement
+                                plant.plant_species[plant.species_name][1][plant_id] = offspring
+                                plant.plant_species[plant.species_name][0] += 1
+                                offspring.check_and_split()
+
             spread_requests = []
 
             for row in map.area_map:
                 for cell in row:
-                    cell.cramp_death()
+                    cell.cramp_death(un_active_plants)
 
             if year % 100 == 0 and year % 500 != 0:
                 plot_call(map.area_map)
@@ -164,7 +215,6 @@ elif simulate_mode:
     print()"""
 
 if time_tracking:
-
     pr.disable()
     s = io.StringIO()
     ps = pstats.Stats(pr, stream=s).sort_stats("cumtime")
