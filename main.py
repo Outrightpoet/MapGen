@@ -156,8 +156,9 @@ if __name__ == '__main__':
     first_plant_species_name = "OG_PLANTOIDS"
     first_plant_species_name_aquatic = "OG_PLANTOIDS_AQUATIC"
 
-    plant_species = {first_plant_species_name: [0, {}, [0,0,0,0,0,0,0,0,0,0,0,0,0]],
-                     first_plant_species_name_aquatic: [0, {}, [0,100,0,0,0,0,0,0,0,0,0,0,0]]}
+    plant_species = {first_plant_species_name: [0, {}, [0,0,0,0,0,0,0,0,0,0,0,0,0],["land",[4,6],2,10,10,1,1,10]],
+                     first_plant_species_name_aquatic: [0, {}, [0,100,0,0,0,0,0,0,0,0,0,0,0],["aquatic",[4,6],2,10,10,1,1,10]]}
+
 
     time_tracking = True
 
@@ -259,7 +260,6 @@ if __name__ == '__main__':
                                         offspring.ready_to_split = plant.ready_to_split
                                         offspring.parent = plant
                                         offspring.traits.traits = plant.traits.traits
-                                        offspring.traits.speciate()
                                         offspring.traits.get_stats()
 
                                     plant.plant_list[plant_id] = offspring

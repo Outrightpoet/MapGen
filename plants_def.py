@@ -8,6 +8,7 @@ class Plants:
 
         self.temperature_resistance = [4,6]
         self.nutrition_need = 2
+        self.init_space_requirement = 10
         self.space_requirement = 10
         self.spread_size = 10
         self.spread_distance=1
@@ -59,7 +60,9 @@ class Plants:
                                                                 self.traits.heat_affinity,
                                                                 self.traits.heat_weakness,
                                                                 self.traits.cold_affinity,
-                                                                self.traits.cold_weakness]]
+                                                                self.traits.cold_weakness],
+                                            [self.water_affiliation, self.temperature_resistance,self.nutrition_need,self.space_requirement,self.spread_size,self.spread_distance,self.growth_rate,self.target_height]]
+
 
             if len(self.plant_species[self.species_name][1]) == 1:
                 del self.plant_species[self.species_name]
