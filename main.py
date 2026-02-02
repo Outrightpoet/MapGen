@@ -230,7 +230,7 @@ if __name__ == '__main__':
                             row = row + get_random_store_neg_1_1()
                             col = col + get_random_store_neg_1_1()
                             if row >= 0 and row < plant.map_height and col >= 0 and col < plant.map_width:
-                                if plant.area_map[row][col].tile_space_avalible > -20:
+                                if plant.area_map[row][col].tile_space_avalible > 0:
                                     if plant.species_name not in plant.plant_species:
                                         traits = plant.traits
                                         plant.plant_species[plant.species_name] = [0, {}, [traits.fruit_growth,

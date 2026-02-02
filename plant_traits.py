@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 class Plant_Traits():
-    def __init__(self, plant, parent_traits=None, dose_speciate=True):
+    def __init__(self, plant, parent_traits=None, dose_speciate=True, force_speciate=False):
 
         self.plant = plant
 
@@ -37,7 +37,7 @@ class Plant_Traits():
         ) = self.traits
 
         if dose_speciate:
-            if get_random_store_0_100() < 30:
+            if get_random_store_0_100() < 30 or force_speciate:
                 self.speciate()
 
     def speciate(self):
