@@ -37,7 +37,7 @@ class Plant_Traits():
         ) = self.traits
 
         if dose_speciate:
-            if get_random_store_0_100() < 10:
+            if get_random_store_0_100() < 30:
                 self.speciate()
 
     def speciate(self):

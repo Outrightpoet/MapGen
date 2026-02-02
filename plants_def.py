@@ -86,11 +86,12 @@ class Plants:
 
     def cycle(self, spread_requests, un_active_plants):
 
-        if self.status == "elder" and get_random_store_0_10() == 0:
+        """if self.status == "elder" and get_random_store_0_10() == 0:
             self.die(un_active_plants)
         elif self.tile.soil_quality < self.nutrition_need:
             self.die(un_active_plants)
-        elif self.tile.temperature < self.temperature_resistance[0] or self.tile.temperature > self.temperature_resistance[1]:
+        elif self.tile.temperature < self.temperature_resistance[0] or self.tile.temperature > \
+                self.temperature_resistance[1]:
             self.die(un_active_plants)
         elif self.tile.classification == "ocean" and self.water_affiliation != "aquatic":
             self.die(un_active_plants)
@@ -102,7 +103,7 @@ class Plants:
         if self.height < self.target_height:
             self.height += self.growth_rate
         else:
-            self.height += (self.growth_rate/((self.height-self.target_height)+1))
+            self.height += (self.growth_rate / ((self.height - self.target_height) + 1))
 
         if self.status == "seed" and self.height > int(self.target_height / 2):
             self.status = "mature"
@@ -115,7 +116,54 @@ class Plants:
             self.space_requirement += self.space_requirement
 
         if self.status != "seed" and get_random_store_0_10() < 2:
+            spread_requests.append(self)"""
+
+        status = self.status
+        tile = self.tile
+        space_requirement = self.space_requirement
+        height = self.height
+        water_affiliation = self.water_affiliation
+        target_height = self.target_height
+        growth_rate = self.growth_rate
+
+        if status == "elder" and get_random_store_0_10() == 0:
+            self.die(un_active_plants)
+        elif tile.soil_quality < self.nutrition_need:
+            self.die(un_active_plants)
+        elif tile.temperature < self.temperature_resistance[0] or tile.temperature > self.temperature_resistance[1]:
+            self.die(un_active_plants)
+        elif tile.classification == "ocean" and water_affiliation != "aquatic":
+            self.die(un_active_plants)
+        elif tile.classification == "lake" and water_affiliation == "land":
+            self.die(un_active_plants)
+        elif tile.water == False and water_affiliation == "ocean":
+            self.die(un_active_plants)
+
+        if height < target_height:
+            height += growth_rate
+        else:
+            height += (growth_rate/((height-target_height)+1))
+
+        if status == "seed" and height > int(target_height / 2):
+            status = "mature"
+            tile.tile_space_avalible -= space_requirement
+            space_requirement += space_requirement
+
+        elif status == "mature" and height >= target_height:
+            status = "elder"
+            tile.tile_space_avalible -= space_requirement
+            space_requirement += space_requirement
+
+        elif status != "seed" and get_random_store_0_10() < 2:
             spread_requests.append(self)
+
+        self.status = status
+        self.tile = tile
+        self.space_requirement = space_requirement
+        self.height = height
+        self.water_affiliation = water_affiliation
+        self.target_height = target_height
+        self.growth_rate = growth_rate
 
         """tile = self.tile
         status = self.status

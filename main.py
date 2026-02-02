@@ -152,7 +152,7 @@ if __name__ == '__main__':
     year = 0
     spread_requests = []
     initian_plant_pop = 10000
-    run_time = 100001
+    run_time = 1801
     first_plant_species_name = "OG_PLANTOIDS"
     first_plant_species_name_aquatic = "OG_PLANTOIDS_AQUATIC"
 
@@ -219,6 +219,8 @@ if __name__ == '__main__':
                 for id in keys:
                     plants[id].cycle(spread_requests, un_active_plants)
 
+                if year % 100 == 0 and year % 500 != 0:
+                    plot_call(map.area_map)
 
                 for plant in spread_requests:
                     row = plant.tile.row
@@ -275,8 +277,7 @@ if __name__ == '__main__':
                     for cell in row:
                         cell.cramp_death(un_active_plants)
 
-                if year % 100 == 0 and year % 500 != 0:
-                    plot_call(map.area_map)
+
                 if year % 4000 == 0:
                     map.simulate_random_events()
                     plot_call(map.area_map)
