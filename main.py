@@ -4,7 +4,7 @@ from plant_id_getter import get_plant_id
 import random
 import numpy as np
 from plots import plt_data
-from rand_storage import get_random_store_neg_1_1
+from rand_storage import get_random_store_neg_1_1, get_random_store_0_100
 from multiprocessing import Process
 
 def make_new_plants():
@@ -231,6 +231,30 @@ if __name__ == '__main__':
                             col = col + get_random_store_neg_1_1()
                             if row >= 0 and row < plant.map_height and col >= 0 and col < plant.map_width:
                                 if plant.area_map[row][col].tile_space_avalible > 0:
+
+                                    force_speciate = False
+
+                                    status = plant.status
+                                    tile = plant.area_map[row][col]
+                                    space_requirement = plant.space_requirement
+                                    height = plant.height
+                                    water_affiliation = plant.water_affiliation
+                                    target_height = plant.target_height
+                                    growth_rate = plant.growth_rate
+
+                                    if get_random_store_0_100() < 30:
+                                        force_speciate = True
+                                    elif tile.soil_quality < plant.nutrition_need:
+                                        continue
+                                    elif tile.temperature < plant.temperature_resistance[0] or tile.temperature > plant.temperature_resistance[1]:
+                                        continue
+                                    elif tile.classification == "ocean" and water_affiliation != "aquatic":
+                                        continue
+                                    elif tile.classification == "lake" and water_affiliation == "land":
+                                        continue
+                                    elif tile.water == False and water_affiliation == "ocean":
+                                        continue
+
                                     if plant.species_name not in plant.plant_species:
                                         traits = plant.traits
                                         plant.plant_species[plant.species_name] = [0, {}, [traits.fruit_growth,
@@ -262,6 +286,8 @@ if __name__ == '__main__':
                                         offspring.ready_to_split = plant.ready_to_split
                                         offspring.parent = plant
                                         offspring.traits.traits = plant.traits.traits
+                                        if force_speciate:
+                                            offspring.traits.speciate()
                                         offspring.traits.get_stats()
 
                                     plant.plant_list[plant_id] = offspring

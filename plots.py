@@ -5,6 +5,12 @@ from numpy.ma.extras import average
 
 
 def plt_data(data1, data2, data3, data4, data5, data6, data7, data9, data10, data11, data12):
+
+    try:
+        plt.close()
+    except:
+        pass
+
     fig, axs = plt.subplots(6,3, figsize = (15,30))
 
     axs[0,0].imshow(data1, cmap='Reds', interpolation='nearest')
